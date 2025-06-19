@@ -1,4 +1,4 @@
-import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
+import { ChildProcessWithoutNullStreams } from 'node:child_process';
 import path from 'node:path';
 
 import dotenv from 'dotenv';
@@ -13,7 +13,7 @@ import { IpcEvents } from '../ipc-events';
  * enginePort 现在存的是完整的 url
  */
 export class TachybaseEngine {
-  private engineStatus = 'initialization';
+  private engineStatus = 'ready';
   private enginePort = '';
   private child: ChildProcessWithoutNullStreams | null = null;
 
@@ -22,13 +22,15 @@ export class TachybaseEngine {
       event.returnValue = this.engineStatus + '|' + this.enginePort;
     });
 
-    ipcMainManager.handle(
-      IpcEvents.ENGINE_START,
-      (_: IpcMainEvent, env: string) => this.start.bind(this)(env),
-    );
+    // ipcMainManager.handle(
+    //   IpcEvents.ENGINE_START,
+    //   (_: IpcMainEvent, env: string) => this.start.bind(this)(env),
+    // );
     ipcMainManager.handle(IpcEvents.ENGINE_STOP, (_: IpcMainEvent) =>
       this.stop.bind(this)(),
     );
+
+    this.start('');
   }
 
   async start(rawEnvString: string) {
@@ -60,7 +62,7 @@ export class TachybaseEngine {
       );
     }
     if (!remoteUrl) {
-      remoteUrl = `http://localhost:${appPort}`;
+      remoteUrl = `http://localhost:${appPort}/signin`;
     }
 
     env.NODE_MODULES_PATH = path.join(workingDir, 'plugins/node_modules');
@@ -88,33 +90,33 @@ export class TachybaseEngine {
       }
     };
 
-    await checkRunning();
+    // await checkRunning();
 
-    this.child = spawn(enginePath, ['start', '--quickstart'], {
-      cwd: workingDir,
-      env,
-      stdio: 'pipe',
-    });
-    this.child.stdout.on('data', (data) => {
-      ipcMainManager.send(IpcEvents.ENGINE_STDOUT, [data.toString()]);
-    });
+    // this.child = spawn(enginePath, ['start', '--quickstart'], {
+    //   cwd: workingDir,
+    //   env,
+    //   stdio: 'pipe',
+    // });
+    // this.child.stdout.on('data', (data) => {
+    //   ipcMainManager.send(IpcEvents.ENGINE_STDOUT, [data.toString()]);
+    // });
 
-    this.child.stderr.on('data', (data) => {
-      ipcMainManager.send(IpcEvents.ENGINE_STDERR, [data.toString()]);
-    });
+    // this.child.stderr.on('data', (data) => {
+    //   ipcMainManager.send(IpcEvents.ENGINE_STDERR, [data.toString()]);
+    // });
 
-    this.child.on('error', (error) => {
-      console.error(`[Engine]: Error starting engine: ${error.message}`);
-    });
+    // this.child.on('error', (error) => {
+    //   console.error(`[Engine]: Error starting engine: ${error.message}`);
+    // });
 
-    this.child.on('exit', (code) => {
-      console.log(`[Engine]: engine exited with code ${code}`);
+    // this.child.on('exit', (code) => {
+    //   console.log(`[Engine]: engine exited with code ${code}`);
 
-      if (this.engineStatus !== 'stopped') {
-        this.engineStatus = 'stopped';
-        ipcMainManager.send(IpcEvents.ENGINE_STATUS_CHANGED, ['stopped']);
-      }
-    });
+    //   if (this.engineStatus !== 'stopped') {
+    //     this.engineStatus = 'stopped';
+    //     ipcMainManager.send(IpcEvents.ENGINE_STATUS_CHANGED, ['stopped']);
+    //   }
+    // });
   }
 
   async stop() {
