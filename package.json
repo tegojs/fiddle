@@ -2,7 +2,7 @@
   "name": "tachybase-fiddle",
   "private": true,
   "productName": "Tachybase Fiddle",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The easiest way to get started with Tachybase",
   "repository": "https://github.com/tachybase/fiddle",
   "homepage": "https://tachybase.org",
