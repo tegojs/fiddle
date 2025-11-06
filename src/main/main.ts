@@ -47,7 +47,8 @@ export async function onReady() {
   const { setupFileListeners } = await import('./files');
 
   setupShowWindow();
-  setupMenu();
+  // 禁用顶部菜单栏
+  // setupMenu();
   setupMenuHandler();
   setupProtocolHandler();
   setupFileListeners();

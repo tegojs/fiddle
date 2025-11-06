@@ -56,6 +56,8 @@ export function getMainWindowOptions(): Electron.BrowserWindowConstructorOptions
     acceptFirstMouse: true,
     backgroundColor: '#1d2427',
     show: false,
+    // 隐藏顶部菜单栏
+    autoHideMenuBar: true,
     webPreferences: {
       webviewTag: true,
       preload: !!process.env.JEST
@@ -96,7 +98,8 @@ export function createMainWindow(): Electron.BrowserWindow {
     if (browserWindow) {
       browserWindow.show();
 
-      createContextMenu(browserWindow);
+      // 禁用右键菜单
+      // createContextMenu(browserWindow);
     }
   });
 
