@@ -40,6 +40,7 @@ report.json
 /static/contributors.json
 /static/css/root.css
 /static/releases.json
+/static/mh-f13
 
 # Webpack configurations
 .webpack
