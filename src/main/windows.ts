@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { BrowserWindow, app, shell } from 'electron';
+import { BrowserWindow, shell } from 'electron';
 
 import { createContextMenu } from './context-menu';
 import { ipcMainManager } from './ipc';
@@ -87,9 +87,9 @@ export function createMainWindow(): Electron.BrowserWindow {
     );
   } else {
     // 生产模式：从打包后的目录加载
-    browserWindow.loadFile(
-      path.join(app.getAppPath(), 'static/mh-f13/index.html'),
-    );
+    // 使用 __dirname 可以正确访问 .asar 文件中的路径
+    const staticHtmlPath = path.join(__dirname, '../static/mh-f13/index.html');
+    browserWindow.loadFile(staticHtmlPath);
   }
 
   browserWindow.webContents.once('dom-ready', () => {
