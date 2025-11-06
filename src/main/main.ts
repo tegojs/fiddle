@@ -43,7 +43,7 @@ export async function onReady() {
 
   setupAboutPanel();
 
-  const { setupMenu } = await import('./menu');
+  // const { setupMenu } = await import('./menu');
   const { setupFileListeners } = await import('./files');
 
   setupShowWindow();

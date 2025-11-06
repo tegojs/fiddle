@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 
 import { BrowserWindow, shell } from 'electron';
 
-import { createContextMenu } from './context-menu';
+// import { createContextMenu } from './context-menu';
 import { ipcMainManager } from './ipc';
 import { IpcEvents } from '../ipc-events';
 import { isDevMode } from './utils/devmode';
