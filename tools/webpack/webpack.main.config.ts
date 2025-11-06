@@ -29,6 +29,8 @@ export const mainConfig: Configuration = {
         },
         { from: 'static/show-me', to: '../static/show-me' },
         { from: 'assets/icons/fiddle.png', to: '../assets/icons/fiddle.png' },
+        // 复制编译好的前端文件
+        { from: 'static/mh-f13', to: '../static/mh-f13' },
       ],
     }),
   ],

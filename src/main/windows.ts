@@ -1,10 +1,12 @@
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-import { BrowserWindow, shell } from 'electron';
+import { BrowserWindow, app, shell } from 'electron';
 
 import { createContextMenu } from './context-menu';
 import { ipcMainManager } from './ipc';
 import { IpcEvents } from '../ipc-events';
+import { isDevMode } from './utils/devmode';
 
 // Keep a global reference of the window objects, if we don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -70,11 +72,25 @@ export function createMainWindow(): Electron.BrowserWindow {
   console.log(`Creating main window`);
   let browserWindow: BrowserWindow | null;
   browserWindow = new BrowserWindow(getMainWindowOptions());
-  browserWindow.loadURL(
-    !!process.env.JEST
-      ? path.join(process.cwd(), './.webpack/renderer/main_window/index.html')
-      : MAIN_WINDOW_WEBPACK_ENTRY,
-  );
+
+  // 加载编译好的静态前端文件
+  if (!!process.env.JEST) {
+    browserWindow.loadURL(
+      pathToFileURL(
+        path.join(process.cwd(), './.webpack/renderer/main_window/index.html'),
+      ).href,
+    );
+  } else if (isDevMode()) {
+    // 开发模式：从源码目录加载，使用 loadFile 可以正确处理相对路径
+    browserWindow.loadFile(
+      path.join(process.cwd(), 'static/mh-f13/index.html'),
+    );
+  } else {
+    // 生产模式：从打包后的目录加载
+    browserWindow.loadFile(
+      path.join(app.getAppPath(), 'static/mh-f13/index.html'),
+    );
+  }
 
   browserWindow.webContents.once('dom-ready', () => {
     if (browserWindow) {
