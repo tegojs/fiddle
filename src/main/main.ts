@@ -223,7 +223,7 @@ export function main(argv_in: string[]) {
   }
 
   // Set the app's name
-  app.name = 'Tachybase Fiddle';
+  app.name = 'MH-F13';
 
   // Ensure that there's only ever one Fiddle running
   listenForProtocolHandler();

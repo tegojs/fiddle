@@ -1,9 +1,9 @@
 {
-  "name": "tachybase-fiddle",
+  "name": "mh-f13",
   "private": true,
-  "productName": "Tachybase Fiddle",
-  "version": "0.0.2",
-  "description": "The easiest way to get started with Tachybase",
+  "productName": "MH-F13",
+  "version": "1.3.12",
+  "description": "MH-F13",
   "repository": "https://github.com/tachybase/fiddle",
   "homepage": "https://tachybase.org",
   "main": "./.webpack/main",

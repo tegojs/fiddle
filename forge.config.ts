@@ -68,8 +68,8 @@ const config: ForgeConfig = {
     }),
   ],
   packagerConfig: {
-    name: 'Tachybase Fiddle',
-    executableName: 'tachybase-fiddle',
+    name: 'MH-F13',
+    executableName: 'mh-f13',
     asar: true,
     icon: path.resolve(__dirname, 'assets', 'icons', 'fiddle'),
     appBundleId: 'com.tachybase.fiddle',
@@ -93,8 +93,8 @@ const config: ForgeConfig = {
       },
     ],
     win32metadata: {
-      CompanyName: 'Tachybase Community',
-      OriginalFilename: 'Tachybase Fiddle',
+      CompanyName: 'DaoyouCloud.com',
+      OriginalFilename: 'MH-F13',
     },
     osxSign: {
       identity: 'Apple Development: Lin Zhang (VBZ6Z2VM5L)',
@@ -114,14 +114,14 @@ const config: ForgeConfig = {
       name: '@electron-forge/maker-squirrel',
       platforms: ['win32'],
       config: (arch: string) => ({
-        name: 'tachybase-fiddle',
-        authors: 'Tachybase Community',
-        exe: 'tachybase-fiddle.exe',
+        name: 'mh-f13',
+        authors: 'DaoyouCloud.com',
+        exe: 'mh-f13.exe',
         iconUrl:
           'https://raw.githubusercontent.com/electron/fiddle/0119f0ce697f5ff7dec4fe51f17620c78cfd488b/assets/icons/fiddle.ico',
         loadingGif: './assets/loading.gif',
         noMsi: true,
-        setupExe: `tachybase-fiddle-${version}-win32-${arch}-setup.exe`,
+        setupExe: `mh-f13-${version}-win32-${arch}-setup.exe`,
         setupIcon: path.resolve(iconDir, 'fiddle.ico'),
         signWithParams: `/sha1 ${process.env.CERT_FINGERPRINT} /tr http://timestamp.digicert.com /td SHA256 /fd SHA256`,
       }),
