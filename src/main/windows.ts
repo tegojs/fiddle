@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { BrowserWindow, shell } from 'electron';
+import { BrowserWindow, nativeTheme, shell } from 'electron';
 
 // import { createContextMenu } from './context-menu';
 import { ipcMainManager } from './ipc';
@@ -42,6 +42,11 @@ export function getMainWindowOptions(): Electron.BrowserWindowConstructorOptions
   const HEADER_COMMANDS_HEIGHT = 50;
   const MACOS_TRAFFIC_LIGHTS_HEIGHT = 16;
 
+  // 根据系统主题设置背景色
+  const backgroundColor = nativeTheme.shouldUseDarkColors
+    ? '#1d2427'
+    : '#ffffff';
+
   return {
     width: 1400,
     height: 900,
@@ -54,7 +59,7 @@ export function getMainWindowOptions(): Electron.BrowserWindowConstructorOptions
       y: HEADER_COMMANDS_HEIGHT / 2 - MACOS_TRAFFIC_LIGHTS_HEIGHT / 2,
     },
     acceptFirstMouse: true,
-    backgroundColor: '#1d2427',
+    backgroundColor,
     show: false,
     // 隐藏顶部菜单栏
     autoHideMenuBar: true,
@@ -103,6 +108,18 @@ export function createMainWindow(): Electron.BrowserWindow {
     }
   });
 
+  // 监听系统主题变化，更新窗口背景色
+  const updateBackgroundColor = () => {
+    if (browserWindow && !browserWindow.isDestroyed()) {
+      const backgroundColor = nativeTheme.shouldUseDarkColors
+        ? '#1d2427'
+        : '#ffffff';
+      browserWindow.setBackgroundColor(backgroundColor);
+    }
+  };
+
+  nativeTheme.on('updated', updateBackgroundColor);
+
   browserWindow.on('focus', () => {
     if (browserWindow) {
       ipcMainManager.send(IpcEvents.SET_SHOW_ME_TEMPLATE);
@@ -110,6 +127,7 @@ export function createMainWindow(): Electron.BrowserWindow {
   });
 
   browserWindow.on('closed', () => {
+    nativeTheme.removeListener('updated', updateBackgroundColor);
     browserWindows = browserWindows.filter((bw) => browserWindow !== bw);
 
     browserWindow = null;
