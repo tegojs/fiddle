@@ -55,9 +55,15 @@ class IpcMainManager extends EventEmitter {
   ) {
     const _target = target;
     if (!_target) {
-      getOrCreateMainWindow().then((window) => {
-        this.send(channel, args, window.webContents);
-      });
+      getOrCreateMainWindow()
+        .then((window) => {
+          if (window && !window.isDestroyed()) {
+            this.send(channel, args, window.webContents);
+          }
+        })
+        .catch(() => {
+          // 如果无法创建窗口（例如应用正在退出），忽略错误
+        });
       return;
     }
 
@@ -97,12 +103,20 @@ class IpcMainManager extends EventEmitter {
   ) {
     const _target = target;
     if (!_target) {
-      getOrCreateMainWindow().then((window) => {
-        window.webContents.postMessage(channel, message, transfer);
-      });
+      getOrCreateMainWindow()
+        .then((window) => {
+          if (window && !window.isDestroyed()) {
+            window.webContents.postMessage(channel, message, transfer);
+          }
+        })
+        .catch(() => {
+          // 如果无法创建窗口（例如应用正在退出），忽略错误
+        });
       return;
     }
-    _target.postMessage(channel, message, transfer);
+    if (!_target.isDestroyed()) {
+      _target.postMessage(channel, message, transfer);
+    }
   }
 }
 

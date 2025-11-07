@@ -12,6 +12,9 @@ import { isDevMode } from './utils/devmode';
 // be closed automatically when the JavaScript object is garbage collected.
 export let browserWindows: Array<BrowserWindow | null> = [];
 
+// 标记应用是否已经初始化完成（至少创建过一个窗口）
+let appInitialized = false;
+
 // Global variables exposed by forge/webpack-plugin to reference
 // the entry point of preload and index.html over http://
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -121,9 +124,14 @@ export function createMainWindow(): Electron.BrowserWindow {
   nativeTheme.on('updated', updateBackgroundColor);
 
   browserWindow.on('focus', () => {
-    if (browserWindow) {
+    if (browserWindow && !browserWindow.isDestroyed()) {
       ipcMainManager.send(IpcEvents.SET_SHOW_ME_TEMPLATE);
     }
+  });
+
+  browserWindow.on('close', () => {
+    // 窗口正在关闭，移除 focus 事件监听器，避免触发后续操作
+    browserWindow?.removeAllListeners('focus');
   });
 
   browserWindow.on('closed', () => {
@@ -149,6 +157,9 @@ export function createMainWindow(): Electron.BrowserWindow {
 
   browserWindows.push(browserWindow);
 
+  // 标记应用已初始化
+  appInitialized = true;
+
   return browserWindow;
 }
 
@@ -157,7 +168,32 @@ export function createMainWindow(): Electron.BrowserWindow {
  */
 export async function getOrCreateMainWindow(): Promise<Electron.BrowserWindow> {
   await mainIsReadyPromise;
-  return (
-    BrowserWindow.getFocusedWindow() || browserWindows[0] || createMainWindow()
-  );
+
+  // 检查是否有有效的现有窗口
+  const existingWindow =
+    BrowserWindow.getFocusedWindow() ||
+    browserWindows.find((bw) => bw && !bw.isDestroyed());
+  if (existingWindow) {
+    return existingWindow;
+  }
+
+  // 如果应用已经初始化过（至少创建过一个窗口），且所有窗口都已关闭
+  // 在非 macOS 平台上，不应该创建新窗口（应用应该退出）
+  if (
+    appInitialized &&
+    process.platform !== 'darwin' &&
+    BrowserWindow.getAllWindows().length === 0
+  ) {
+    // 检查是否所有窗口都已关闭
+    const allWindowsClosed = browserWindows.every(
+      (bw) => !bw || bw.isDestroyed(),
+    );
+    if (allWindowsClosed) {
+      // 在非 macOS 平台上，如果所有窗口都关闭了，应用应该退出
+      // 此时不应该创建新窗口
+      throw new Error('Cannot create window when all windows are closed');
+    }
+  }
+
+  return createMainWindow();
 }
