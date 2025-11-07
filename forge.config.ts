@@ -73,6 +73,7 @@ const config: ForgeConfig = {
     asar: true,
     icon: path.resolve(__dirname, 'assets', 'icons', 'fiddle'),
     appBundleId: 'com.tachybase.fiddle',
+    appCopyright: 'Copyright (C) 2025 DaoyouCloud.com All rights reserved.',
     usageDescription: {
       Camera:
         'Access is needed by certain built-in fiddles in addition to any custom fiddles that use the Camera',
