@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { BrowserWindow, nativeTheme, shell } from 'electron';
+import { BrowserWindow, globalShortcut, nativeTheme, shell } from 'electron';
 
 // import { createContextMenu } from './context-menu';
 import { ipcMainManager } from './ipc';
@@ -27,6 +27,113 @@ const mainIsReadyPromise = new Promise<void>(
 
 export function mainIsReady() {
   mainIsReadyResolver();
+}
+
+/**
+ * 禁用浏览器相关的快捷键
+ */
+function disableBrowserShortcuts(browserWindow: BrowserWindow) {
+  // 禁用常见的浏览器快捷键
+  const shortcuts = [
+    'F5', // 刷新
+    'Ctrl+R', // 刷新
+    'Ctrl+Shift+R', // 强制刷新
+    'F12', // DevTools
+    'Ctrl+Shift+I', // DevTools
+    'Ctrl+Shift+J', // DevTools (Console)
+    'Ctrl+U', // 查看源代码
+    'Ctrl+Shift+C', // 检查元素
+    'Ctrl+W', // 关闭窗口
+    'Ctrl+N', // 新建窗口
+    'Ctrl+Shift+N', // 新建隐私窗口
+    'Ctrl+T', // 新建标签页
+    'Ctrl+Shift+T', // 恢复关闭的标签页
+    'Ctrl+Tab', // 切换标签页
+    'Ctrl+Shift+Tab', // 切换标签页
+    'Alt+Left', // 后退
+    'Alt+Right', // 前进
+    'Ctrl+H', // 历史记录
+    'Ctrl+J', // 下载
+    'Ctrl+Shift+Delete', // 清除浏览数据
+  ];
+
+  shortcuts.forEach((shortcut) => {
+    globalShortcut.register(shortcut, () => {
+      // 阻止快捷键执行
+      return false;
+    });
+  });
+
+  // 拦截 webContents 的快捷键事件
+  browserWindow.webContents.on('before-input-event', (event, input) => {
+    const { key, control, shift, meta } = input;
+    const isCtrlOrCmd = control || meta;
+
+    // 禁用 F5 刷新
+    if (key === 'F5') {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 F12 DevTools
+    if (key === 'F12') {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 Ctrl+R / Cmd+R 刷新
+    if (isCtrlOrCmd && key === 'r' && !shift) {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 Ctrl+Shift+R / Cmd+Shift+R 强制刷新
+    if (isCtrlOrCmd && shift && key === 'r') {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 Ctrl+Shift+I / Cmd+Shift+I DevTools
+    if (isCtrlOrCmd && shift && key === 'i') {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 Ctrl+Shift+J / Cmd+Shift+J DevTools Console
+    if (isCtrlOrCmd && shift && key === 'j') {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 Ctrl+U / Cmd+U 查看源代码
+    if (isCtrlOrCmd && key === 'u') {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 Ctrl+Shift+C / Cmd+Shift+C 检查元素
+    if (isCtrlOrCmd && shift && key === 'c') {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 Ctrl+W / Cmd+W 关闭窗口
+    if (isCtrlOrCmd && key === 'w') {
+      event.preventDefault();
+      return;
+    }
+
+    // 禁用 Ctrl+N / Cmd+N 新建窗口
+    if (isCtrlOrCmd && key === 'n') {
+      event.preventDefault();
+      return;
+    }
+  });
+
+  // 确保 DevTools 无法打开
+  browserWindow.webContents.on('devtools-opened', () => {
+    browserWindow.webContents.closeDevTools();
+  });
 }
 
 export function safelyOpenWebURL(url: string) {
@@ -68,6 +175,7 @@ export function getMainWindowOptions(): Electron.BrowserWindowConstructorOptions
     autoHideMenuBar: true,
     webPreferences: {
       webviewTag: true,
+      devTools: false, // 禁用 DevTools
       preload: !!process.env.JEST
         ? path.join(process.cwd(), './.webpack/renderer/main_window/preload.js')
         : MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -108,6 +216,9 @@ export function createMainWindow(): Electron.BrowserWindow {
 
       // 禁用右键菜单
       // createContextMenu(browserWindow);
+
+      // 禁用所有浏览器快捷键
+      disableBrowserShortcuts(browserWindow);
     }
   });
 
@@ -136,6 +247,8 @@ export function createMainWindow(): Electron.BrowserWindow {
 
   browserWindow.on('closed', () => {
     nativeTheme.removeListener('updated', updateBackgroundColor);
+    // 取消注册所有全局快捷键
+    globalShortcut.unregisterAll();
     browserWindows = browserWindows.filter((bw) => browserWindow !== bw);
 
     browserWindow = null;
@@ -151,9 +264,10 @@ export function createMainWindow(): Electron.BrowserWindow {
     safelyOpenWebURL(url);
   });
 
-  ipcMainManager.on(IpcEvents.RELOAD_WINDOW, () => {
-    browserWindow?.reload();
-  });
+  // 禁用窗口刷新功能
+  // ipcMainManager.on(IpcEvents.RELOAD_WINDOW, () => {
+  //   browserWindow?.reload();
+  // });
 
   browserWindows.push(browserWindow);
 

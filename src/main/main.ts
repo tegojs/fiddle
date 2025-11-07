@@ -11,7 +11,7 @@ import {
 import { setupAboutPanel } from './about-panel';
 import { processCommandLine } from './command-line';
 import { setupContent } from './content';
-import { setupDevTools } from './devtools';
+// import { setupDevTools } from './devtools'; // 已禁用 DevTools
 import { setupDialogs } from './dialogs';
 import { setupTypes } from './electron-types';
 import { setupFiddleCore } from './fiddle-core';
@@ -30,6 +30,7 @@ import { setupVersions } from './versions';
 import { getOrCreateMainWindow, mainIsReady } from './windows';
 import { IpcEvents } from '../ipc-events';
 import { TachybaseEngine } from './engine';
+// import { setupDevTools } from './devtools'; // 已禁用 DevTools
 
 let argv: string[] = [];
 
@@ -54,7 +55,8 @@ export async function onReady() {
   setupFileListeners();
   setupUpdates();
   setupDialogs();
-  setupDevTools();
+  // 禁用 DevTools
+  // setupDevTools();
   setupTitleBarClickMac();
   setupNativeTheme();
   setupTemplates();
