@@ -23,7 +23,7 @@ jobs:
           node-version: 20.x
           cache: pnpm
       - name: Install
-        run: pnpm install --frozen-lockfile --network-timeout 100000 || pnpm install --frozen-lockfile --network-timeout 100000 || pnpm install --frozen-lockfile --network-timeout 100000
+        run: pnpm install
       - run: pnpm run contributors
       - run: pnpm run electron-releases
       - name: test
