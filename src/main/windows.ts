@@ -191,6 +191,18 @@ export function createMainWindow(): Electron.BrowserWindow {
   let browserWindow: BrowserWindow | null;
   browserWindow = new BrowserWindow(getMainWindowOptions());
 
+  // 设置固定窗口标题
+  const FIXED_TITLE = 'MH-F13';
+  browserWindow.setTitle(FIXED_TITLE);
+
+  // 阻止网页标题变化影响窗口标题
+  browserWindow.webContents.on('page-title-updated', (event) => {
+    event.preventDefault();
+    if (browserWindow && !browserWindow.isDestroyed()) {
+      browserWindow.setTitle(FIXED_TITLE);
+    }
+  });
+
   // 加载编译好的静态前端文件
   if (!!process.env.JEST) {
     browserWindow.loadURL(
@@ -212,6 +224,8 @@ export function createMainWindow(): Electron.BrowserWindow {
 
   browserWindow.webContents.once('dom-ready', () => {
     if (browserWindow) {
+      // 确保标题始终为固定值
+      browserWindow.setTitle(FIXED_TITLE);
       browserWindow.show();
 
       // 禁用右键菜单
