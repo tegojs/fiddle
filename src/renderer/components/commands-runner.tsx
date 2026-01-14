@@ -22,7 +22,7 @@ export const Runner = observer(
         case 'initialization': {
           props.text = 'Stop';
           try {
-            window.ElectronFiddle.startEngine(engineEnv);
+            // window.ElectronFiddle.startEngine(engineEnv);
           } catch (err) {
             this.props.appState.pushError(err.message, err);
           }

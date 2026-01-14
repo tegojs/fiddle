@@ -60,6 +60,7 @@ export function getMainWindowOptions(): Electron.BrowserWindowConstructorOptions
         ? path.join(process.cwd(), './.webpack/renderer/main_window/preload.js')
         : MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
+    autoHideMenuBar: true, // 自动隐藏菜单栏,按Alt键显示
   };
 }
 

@@ -230,7 +230,7 @@ export const Output = observer(
         <div
           className="output"
           ref={this.outputRef}
-          style={{ display: isConsoleShowing ? 'inline-block' : 'none' }}
+          style={{ display: 'none' }}
         />
       );
     }
